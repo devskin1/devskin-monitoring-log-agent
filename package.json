@@ -1,0 +1,33 @@
+{
+  "name": "@devskin/log-agent",
+  "version": "1.0.0",
+  "description": "DevSkin Log Agent - File tailing and log shipping",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "winston": "^3.11.0",
+    "tail": "^2.2.6",
+    "glob": "^10.3.10"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@types/tail": "^2.2.3",
+    "typescript": "^5.3.3"
+  },
+  "keywords": [
+    "logging",
+    "log-shipping",
+    "file-tailing",
+    "monitoring",
+    "observability"
+  ],
+  "author": "DevSkin Team",
+  "license": "MIT"
+}

@@ -1,0 +1,39 @@
+{
+  "serverUrl": "https://api-monitoring.devskin.com",
+  "apiKey": "your-api-key-here",
+  "applicationName": "my-application",
+  "environment": "production",
+  "batchSize": 100,
+  "flushInterval": 5000,
+  "debug": false,
+  "sources": [
+    {
+      "name": "app-logs",
+      "path": "/var/log/myapp/app.log",
+      "format": "json",
+      "fromBeginning": false,
+      "labels": {
+        "component": "backend",
+        "tier": "api"
+      }
+    },
+    {
+      "name": "nginx-access",
+      "path": "/var/log/nginx/access.log",
+      "format": "nginx",
+      "fromBeginning": false,
+      "labels": {
+        "component": "webserver"
+      }
+    },
+    {
+      "name": "error-logs",
+      "path": "/var/log/myapp/*.error.log",
+      "format": "common",
+      "fromBeginning": false,
+      "labels": {
+        "severity": "error"
+      }
+    }
+  ]
+}

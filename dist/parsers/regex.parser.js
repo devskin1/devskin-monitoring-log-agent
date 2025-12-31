@@ -1,0 +1,114 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RegexParser = void 0;
+/**
+ * Generic regex-based parser
+ */
+class RegexParser {
+    parse(line, source) {
+        let regex;
+        // Get regex pattern
+        if (source.parser) {
+            try {
+                regex = new RegExp(source.parser);
+            }
+            catch (error) {
+                console.error(`Invalid regex pattern for source ${source.name}:`, error);
+                return this.parseAsPlainText(line, source);
+            }
+        }
+        else if (source.format && RegexParser.COMMON_PATTERNS[source.format]) {
+            regex = RegexParser.COMMON_PATTERNS[source.format];
+        }
+        else {
+            // Default to common pattern
+            regex = RegexParser.COMMON_PATTERNS.common;
+        }
+        const match = line.match(regex);
+        if (!match) {
+            return this.parseAsPlainText(line, source);
+        }
+        // Extract based on format
+        if (source.format === 'nginx' || source.format === 'apache') {
+            return this.parseWebServerLog(match, source, line);
+        }
+        else if (source.format === 'syslog') {
+            return this.parseSyslog(match, source, line);
+        }
+        else {
+            return this.parseCommonFormat(match, source, line);
+        }
+    }
+    parseCommonFormat(match, source, raw) {
+        return {
+            timestamp: new Date(match[1] || Date.now()),
+            level: match[2]?.toUpperCase() || 'INFO',
+            message: match[3] || raw,
+            source: source.name,
+            application: '',
+            labels: source.labels,
+            raw_log: raw,
+        };
+    }
+    parseWebServerLog(match, source, raw) {
+        const statusCode = parseInt(match[5] || '200');
+        const level = statusCode >= 500 ? 'ERROR' : statusCode >= 400 ? 'WARN' : 'INFO';
+        return {
+            timestamp: new Date(match[2] || Date.now()),
+            level,
+            message: `${match[3]} ${match[4]} - ${statusCode}`,
+            source: source.name,
+            application: '',
+            labels: source.labels,
+            attributes: {
+                client_ip: match[1],
+                method: match[3],
+                path: match[4],
+                status_code: statusCode,
+                bytes_sent: parseInt(match[6] || '0'),
+                referer: match[7],
+                user_agent: match[8],
+            },
+            raw_log: raw,
+        };
+    }
+    parseSyslog(match, source, raw) {
+        return {
+            timestamp: new Date(match[1] || Date.now()),
+            level: 'INFO',
+            message: match[5] || raw,
+            source: source.name,
+            application: '',
+            labels: source.labels,
+            attributes: {
+                hostname: match[2],
+                process: match[3],
+                pid: parseInt(match[4] || '0'),
+            },
+            raw_log: raw,
+        };
+    }
+    parseAsPlainText(line, source) {
+        return {
+            timestamp: new Date(),
+            level: 'INFO',
+            message: line,
+            source: source.name,
+            application: '',
+            labels: source.labels,
+            raw_log: line,
+        };
+    }
+}
+exports.RegexParser = RegexParser;
+RegexParser.COMMON_PATTERNS = {
+    // Common log format: [2024-01-15 10:30:45] INFO: This is a log message
+    common: /^\[(.+?)\]\s+(\w+):\s+(.+)$/,
+    // Nginx access log
+    nginx: /^(\S+) \S+ \S+ \[([^\]]+)\] "(\S+) (\S+) \S+" (\d+) (\d+) "([^"]*)" "([^"]*)"/,
+    // Apache access log
+    apache: /^(\S+) \S+ \S+ \[([^\]]+)\] "(\S+) (\S+) \S+" (\d+) (\d+)/,
+    // Syslog format
+    syslog: /^(\w+\s+\d+\s+\d+:\d+:\d+) (\S+) (\w+)\[(\d+)\]: (.+)$/,
+};
+//# sourceMappingURL=regex.parser.js.map
