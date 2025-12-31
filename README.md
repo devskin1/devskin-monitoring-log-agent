@@ -13,6 +13,22 @@ Tail, parse, and ship logs to DevSkin - supports JSON, Nginx, Apache, Syslog, an
 - ✅ Graceful error handling
 - ✅ Heartbeat monitoring
 
+## Requirements
+
+- **Node.js:** >= 18.0.0 (LTS recommended)
+- **npm:** >= 8.0.0
+
+Check your versions:
+```bash
+node --version
+npm --version
+```
+
+If you need to install/upgrade Node.js:
+- **Linux:** `curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && sudo apt-get install -y nodejs`
+- **macOS:** `brew install node@18`
+- **Windows:** Download from https://nodejs.org/
+
 ## Installation
 
 ```bash
