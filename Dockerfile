@@ -29,12 +29,11 @@ RUN npm ci --only=production && \
 # Copy built application
 COPY --from=builder /app/dist ./dist
 
-# Copy entrypoint script
-COPY docker-entrypoint.sh /app/
-RUN chmod +x /app/docker-entrypoint.sh
+# Copy entrypoint script - use ADD instead of COPY to ensure proper permissions
+COPY --chmod=755 docker-entrypoint.sh /app/docker-entrypoint.sh
 
-# Create config directory
-RUN mkdir -p /app/config && chown node:node /app/config
+# Create config directory with proper ownership
+RUN mkdir -p /app/config && chown -R node:node /app
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
